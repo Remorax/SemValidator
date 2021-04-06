@@ -1,7 +1,6 @@
 from flask import Flask, request, redirect, url_for, session, g, flash, \
     render_template, jsonify
 from onto_app import app, db
-from onto_app.pitfall_scanner import PitfallScanner
 import os
 from collections import Counter
 from requests_oauthlib import OAuth1Session
