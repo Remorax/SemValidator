@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, url_for, session, g, flash, \
     render_template, jsonify
 from onto_app import app, db
 import os
+from os.path import dirname, realpath, join, abspath
 from collections import Counter
 from requests_oauthlib import OAuth1Session
 from requests_oauthlib import OAuth1
@@ -90,7 +91,7 @@ def upload_ontology():
     file = request.files["file"]
     if not file.filename:
         return jsonify([])
-    ontology = os.path.abspath(os.path.join("data/input/ontologies/", file.filename))
+    ontology = abspath(join(join(dirname(realpath(__file__)), "data/input/ontologies/"), file.filename))
     file.save(ontology)
     
     ontology_name = '.'.join(ontology.split('/')[-1].split('.')[:-1])
@@ -113,11 +114,11 @@ def delete_ontology():
         raise
 
     try:
-        os.remove(os.path.abspath(os.path.join("data/input/ontologies/", ont_name + ".owl")))
+        os.remove(abspath(join(join(dirname(realpath(__file__)), "data/input/ontologies/"), ont_name + ".owl")))
     except OSError:
         pass
     try:
-        os.remove(os.path.abspath(os.path.join("data/input/files/", ont_name + ".tsv")))
+        os.remove(abspath(join(join(dirname(realpath(__file__)), "data/input/files/"), ont_name + ".tsv")))
     except OSError:
         pass
 
@@ -207,7 +208,7 @@ def loadOntology(file) :
         return redirect('login')
 
     json_file = file + '.json'
-    uploads = os.path.join(current_app.root_path,"data/server-files/json")
+    uploads = join(dirname(realpath(__file__)), "data/server-files/json")
     uploads = uploads + "/" + str(json_file)
     ontology_file = file + ".owl"
     enriched_file = file + ".tsv"
