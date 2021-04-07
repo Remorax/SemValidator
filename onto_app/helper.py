@@ -1,6 +1,6 @@
 import subprocess
-from os import listdir, getcwd
-from os.path import isfile, join, abspath
+from os import listdir
+from os.path import isfile, join, abspath, dirname, realpath
 import glob
 from onto_app.ontology import *
 from onto_app import db
@@ -84,7 +84,7 @@ def createParsedRelations(file, fname):
             concept2 = baseurl + "#" + iri2
             allParsedRelations.append(" ".join([concept1, concept2, relation]))
     string = "\n".join(allParsedRelations)
-    open(join(abspath(getcwd()), "data/server-files/files/")  + str(fname) + '.tsv', "w+").write(string)
+    open(join(dirname(realpath(__file__)), "data/server-files/files/")  + str(fname) + '.tsv', "w+").write(string)
     return
 
 
@@ -95,16 +95,16 @@ def add_onto_file(admin_id, name):
         baseurl = "https://serc.iiit.ac.in/downloads/ontology/pizza.owl"
     elif name=="security":
         baseurl = "https://serc.iiit.ac.in/downloads/ontology/securityontology.owl"
-    json_path = join(abspath(getcwd()), "data/server-files/json/") + str(name) + '.json'
-    raw_extracted_relations = join(abspath(getcwd()), 'data/input/files/') + str(name) + '.tsv'
-    ontology_path = join(abspath(getcwd()), 'data/input/ontologies/') + str(name) + '.owl'
+    json_path = join(dirname(realpath(__file__)), "data/server-files/json/") + str(name) + '.json'
+    raw_extracted_relations = join(dirname(realpath(__file__)), 'data/input/files/') + str(name) + '.tsv'
+    ontology_path = join(dirname(realpath(__file__)), 'data/input/ontologies/') + str(name) + '.owl'
     f = open(json_path, 'w+')
     allTriples = [el.strip().split("\t")[:3] for el in open(raw_extracted_relations).read().split("\n") if el]
     print ("Relations to enrich: {}".format(allTriples))
 
     new_relations, new_nodes = get_new_relations(ontology_path, raw_extracted_relations)
 
-    outputfile = join(abspath(getcwd()), "data/server-files/ontologies/") +str(name) + '.owl'
+    outputfile = join(dirname(realpath(__file__)), "data/server-files/ontologies/") +str(name) + '.owl'
     create_validatable_ontology(ontology_path, outputfile, baseurl, new_relations)
     print ("Enriched {} ontology created...".format(name))
 
@@ -127,7 +127,7 @@ def add_onto_file(admin_id, name):
     # add_subclasses_to_db(new_subclasses, new_ontology_id)
 
 def add_new_ontologies():
-    ontologies = ['.'.join(f.split('.')[:-1]) for f in listdir(join(abspath(getcwd()), 'data/input/ontologies/')) if isfile(join(join(abspath(getcwd()), 'data/input/ontologies/'), f)) and f.endswith(".owl")]
+    ontologies = ['.'.join(f.split('.')[:-1]) for f in listdir(join(dirname(realpath(__file__)), 'data/input/ontologies/')) if isfile(join(join(dirname(realpath(__file__)), 'data/input/ontologies/'), f)) and f.endswith(".owl")]
     ontologies = [ont for ont in ontologies if ont]
     result = db.engine.execute("""SELECT name FROM ontologies""")
     db_ontologies = [o['name'] for o in result.fetchall()]
@@ -366,5 +366,5 @@ def add_node_decision(user_id, name, onto_id, decision):
         })
 
 def get_ontologies_on_server():
-    ontologies = [abspath(f) for f in glob.glob(join(abspath(getcwd()), "data/input/ontologies/*")) if isfile(f) and f.endswith(".owl")]
+    ontologies = [abspath(f) for f in glob.glob(join(dirname(realpath(__file__)), "data/input/ontologies/*")) if isfile(f) and f.endswith(".owl")]
     return ontologies
