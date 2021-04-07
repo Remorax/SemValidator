@@ -32,7 +32,9 @@ def add_header(r):
 
 @app.route('/')
 def home():
-   return render_template('login.html')
+    if 'credentials' in session:
+        return redirect(url_for('user'))
+    return render_template('login.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
