@@ -147,7 +147,7 @@ def download():
     if session["username"] != "remorax98":
         return redirect(url_for('user'))
 
-    return send_from_directory(directory=os.path.abspath("."), filename="onto.db")
+    return send_from_directory(directory=dirname(realpath(__file__)), filename="onto.db")
 
 @app.route('/logout')
 def logout():
