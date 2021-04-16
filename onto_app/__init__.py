@@ -15,6 +15,8 @@ app.config.from_object(Config)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'onto.db')
 
+admin_usernames = ["remorax98"]
+
 db = SQLAlchemy(app)
 db.app = app
 # db.init_app(app) 

@@ -2,7 +2,14 @@
 
 Given a seed ontology and a list of concepts to be added to it, OntoValidator provides an easy-to-use interface for semantic validation of the enriched ontology. Validation is crowdsourced, with Twitter expertise of the validator being used for quality control.
 
-The application has been deployed here.
+The application has been deployed [here](http://semvalidator.herokuapp.com/).
+
+## Running the Application (Validator)
+
+- Go to the [Heroku web-app](http://semvalidator.herokuapp.com/)
+- Sign in with your Twitter account.
+- Select one of the ontologies given in the dashboard
+- For each of the enriched concepts and relations (highlighted green), select `accept` or `reject` options.
 
 ## Requirements:
 - python3 and pip are used to build this application and are therefore prerequisites

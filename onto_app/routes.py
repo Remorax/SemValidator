@@ -10,6 +10,7 @@ from flask import send_file, send_from_directory, redirect, url_for, flash, curr
 from werkzeug.utils import secure_filename
 import json
 from onto_app.helper import *
+from onto_app import admin_usernames
 import tweepy
 
 # These config variables come from 'config.py'
@@ -87,7 +88,7 @@ def credentials_to_dict(credentials):
 
 @app.route("/upload_ontology", methods = ['POST'])
 def upload_ontology():
-    if 'credentials' not in session or session["username"] != "remorax98":
+    if 'credentials' not in session or session["username"] not in admin_usernames:
         return redirect('login')
     global final_data
     file = request.files["file"]
@@ -103,7 +104,7 @@ def upload_ontology():
 
 @app.route("/delete_ontology", methods = ['POST'])
 def delete_ontology():
-    if 'credentials' not in session or session["username"] != "remorax98":
+    if 'credentials' not in session or session["username"] not in admin_usernames:
         return redirect('login')
 
     ont_name = request.json['name']
@@ -135,7 +136,7 @@ def user():
     ontologies = get_ontologies_on_server()
     
     
-    if session["username"] == "remorax98":
+    if session["username"] in admin_usernames:
         return render_template("admin_dashboard.html", ontologies=final_data, username=session['username'])
     ontologies = ['.'.join(f.split('/')[-1].split('.')[:-1]) for f in ontologies]
     print ("Ontologies fetched from server: {}".format(ontologies))
@@ -146,7 +147,7 @@ def download():
     if not 'credentials' in session:
         return redirect(url_for('home'))
     
-    if session["username"] != "remorax98":
+    if session["username"] not in admin_usernames:
         return redirect(url_for('user'))
 
     return send_from_directory(directory=dirname(realpath(__file__)), filename="onto.db")
