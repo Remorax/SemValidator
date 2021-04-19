@@ -1,7 +1,7 @@
 import sys, math
 import subprocess
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, abspath
 import xml.dom.minidom
 from ontology import *
 import tweepy
@@ -13,7 +13,7 @@ from datetime import datetime, date, time, timedelta
 from collections import Counter 
 import tensorflow_hub as hub
 import string
-import sys
+import sys, pickle
 from scipy import spatial
 from collections import defaultdict
 from sqlalchemy import create_engine
@@ -53,6 +53,14 @@ auth.set_access_token(access_token, access_token_secret)
 auth_api = API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True, retry_count=3, retry_delay=60)
 
 account_list = []
+
+algorithms = {
+    "SVR": [SVR, {"C": [1, 10, 50, 100, 500], "epsilon": [0.001, 0.05, 0.01, 0.1, 0.5]}],
+    "KNN": [KNeighborsRegressor, {"n_neighbors": [3,5,7,9], "weights": ["uniform", "distance"]}],
+    "Linear": [LinearRegression, {}],
+    "MajorityVoting": [MajorityVoting, {}],
+    "RandomForest": [RandomForestRegressor, {"n_estimators": [10, 50, 100]}]
+}
 
 def inOntology(node):
     input_ontology = "data/input/ontologies/" + name + ".owl"
@@ -217,7 +225,10 @@ for o in result.fetchall():
 account_list = list(set(account_list))
 finalDict = defaultdict(int)
 
+model = pickle.load(open(abspath("models/pizza.sav"), "rb"))
+
 if len(account_list) > 0:
+
     for target in account_list:
         print("Calculating credibility for user {}".format(target))
 
@@ -234,7 +245,7 @@ if len(account_list) > 0:
         friends_cred = np.mean(friend_creds)
         print("Friend credibility of user {} is {}".format(target, friends_cred))
         
-        finalDict[user.id] = TWEETS_RELEVANCE * tweets_cred + FRIENDS_RELEVANCE * friends_cred
+        finalDict[user.id] = model.score([tweets_cred, friends_cred])
 
 add_relation_with_credibility_only(finalDict)
 
